@@ -3,9 +3,11 @@ import pytest
 
 BASE_URL = "https://reqres.in/api"
 
+# Позитивные тесты
+
 
 def test_get_users():
-    """Тест на получение списка всех пользователей"""
+    """Позитивный тест на получение списка всех пользователей"""
     # Отправка GET-запроса к эндпоинту '/users'
     response = requests.get(f"{BASE_URL}/users")
 
@@ -31,7 +33,7 @@ def test_get_users():
 
 
 def test_get_user_by_id():
-    """Тест на получение пользователя по-конкретному id, например 'id=2'"""
+    """Позитивный тест на получение пользователя по ID"""
     user_id = 2
 
     # Отправка GET-запроса к эндпоинту '/users/{user_id}'
@@ -57,7 +59,7 @@ def test_get_user_by_id():
 
 
 def test_post_create_user():
-    """Тест на создание нового пользователя"""
+    """Позитивный тест на создание нового пользователя"""
     payload = {
         "email": "jane.wattson@reqres.in",
         "first_name": "Jane",
@@ -92,7 +94,7 @@ def test_post_create_user():
 
 
 def test_put_update_user():
-    """Тест на обновление данных существующего пользователя"""
+    """Позитивный тест на обновление данных существующего пользователя"""
     user_id = 2
     payload = {
         "id": 2,
@@ -127,7 +129,7 @@ def test_put_update_user():
 
 
 def test_delete_user():
-    """Тест на проверку удаления пользователя"""
+    """Позитивный тест на проверку удаления пользователя"""
     user_id = 2
 
     # Отправка DELETE-запроса к эндпоинту '/users/{user_id}'
@@ -136,9 +138,11 @@ def test_delete_user():
     # Проверка, что статус-код ответа равен 204
     assert response.status_code == 204
 
+# Негативные тесты
+
 
 def test_get_user_not_found():
-    """Тест на запрос несуществующего пользователя"""
+    """Негативный тест на запрос несуществующего пользователя"""
     user_id = 9999
 
     # Отправка GET-запроса к эндпоинту '/users/{user_id}'
@@ -149,7 +153,7 @@ def test_get_user_not_found():
 
 
 def test_post_create_user_invalid_data():
-    """Тест на создание пользователя с некорректными данными.
+    """Негативный тест на создание пользователя с некорректными данными.
     Внимание: API reqres.in не выполняет строгую валидацию данных и возвращает статус 201
     даже при некорректных данных. Этот тест предназначен для проверки фактического поведения
     API, а не для проверки валидации данных.
@@ -165,7 +169,7 @@ def test_post_create_user_invalid_data():
     response = requests.post(f"{BASE_URL}/users", json=payload)
 
     # Проверяем, что статус-код ответа равен 201
-    assert response.status_code == 201
+    assert response.status_code == 201  # API не валидирует данные, возвращает 201
 
     # Дополнительные проверки
     data = response.json()
@@ -174,7 +178,7 @@ def test_post_create_user_invalid_data():
 
 
 def test_put_updated_user_not_found():
-    """Тест на проверку обновления данных несуществующего пользователя.
+    """Негативный тест на проверку обновления данных несуществующего пользователя.
     Важно: API reqres.in может возвращать статус 200, даже если пользователь не существует.
     Этот тест проверяет, создал ли API пользователя с указанными данными, если он не существовал.
     """
@@ -191,7 +195,7 @@ def test_put_updated_user_not_found():
     response = requests.put(f"{BASE_URL}/users/{user_id}", json=payload)
 
     # Проверяем, что статус-код ответа равен 200
-    assert response.status_code == 200
+    assert response.status_code == 200  # API может возвращать 200, даже если пользователь не существует
 
     # Дополнительные проверки
     data = response.json()
@@ -201,3 +205,14 @@ def test_put_updated_user_not_found():
     assert data["first_name"] == payload["first_name"]
     assert data["last_name"] == payload["last_name"]
     assert data["avatar"] == payload["avatar"]
+
+
+def test_delete_user_not_found():
+    """Негативный тест на проверку удаления несуществующего пользователя.
+    Важно: API reqres.in возвращает статус 204, даже если пользователь не существует.
+    """
+    user_id = 9999
+    response = requests.delete(f"{BASE_URL}/users/{user_id}")
+
+    # Проверяем, что статус-код ответа равен 204 (No Content)
+    assert response.status_code == 204  # API возвращает 204, даже если пользователь не существует
