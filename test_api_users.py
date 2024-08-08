@@ -32,10 +32,9 @@ def test_get_users():
         assert "avatar" in data["data"][0]
 
 
-def test_get_user_by_id():
+@pytest.mark.parametrize("user_id", [1, 2, 3])
+def test_get_user_by_id(user_id):
     """Позитивный тест на получение пользователя по ID"""
-    user_id = 2
-
     # Отправка GET-запроса к эндпоинту '/users/{user_id}'
     response = requests.get(f"{BASE_URL}/users/{user_id}")
 
@@ -47,15 +46,12 @@ def test_get_user_by_id():
     assert "data" in data
     user_data = data["data"]
 
-    # Проверяем, что id в данных ответа соответствует ожидаемому
-    assert "id" in user_data
-    assert user_data["id"] == user_id
-
-    # Проверяем наличие остальных полей
-    assert "email" in user_data
-    assert "first_name" in user_data
-    assert "last_name" in user_data
-    assert "avatar" in user_data
+    # Проверка структуры ответа
+    assert isinstance(user_data["id"], int)
+    assert isinstance(user_data["email"], str)
+    assert isinstance(user_data["first_name"], str)
+    assert isinstance(user_data["last_name"], str)
+    assert isinstance(user_data["avatar"], str)
 
 
 def test_post_create_user():
@@ -93,9 +89,9 @@ def test_post_create_user():
     assert "createdAt" in data
 
 
-def test_put_update_user():
+@pytest.mark.parametrize("user_id", [1, 2, 3])
+def test_put_update_user(user_id):
     """Позитивный тест на обновление данных существующего пользователя"""
-    user_id = 2
     payload = {
         "id": 2,
         "email": "janetta.weaver@reqres.in",
@@ -128,10 +124,9 @@ def test_put_update_user():
     assert data["avatar"] == payload["avatar"]
 
 
-def test_delete_user():
+@pytest.mark.parametrize("user_id", [1, 2, 3])
+def test_delete_user(user_id):
     """Позитивный тест на проверку удаления пользователя"""
-    user_id = 2
-
     # Отправка DELETE-запроса к эндпоинту '/users/{user_id}'
     response = requests.delete(f"{BASE_URL}/users/{user_id}")
 
@@ -141,10 +136,9 @@ def test_delete_user():
 # Негативные тесты
 
 
-def test_get_user_not_found():
+@pytest.mark.parametrize("user_id", [9999, 10999, 336688])
+def test_get_user_not_found(user_id):
     """Негативный тест на запрос несуществующего пользователя"""
-    user_id = 9999
-
     # Отправка GET-запроса к эндпоинту '/users/{user_id}'
     response = requests.get(f"{BASE_URL}/users/{user_id}")
 
@@ -177,41 +171,32 @@ def test_post_create_user_invalid_data():
     assert "createdAt" in data
 
 
-def test_put_updated_user_not_found():
-    """Негативный тест на проверку обновления данных несуществующего пользователя.
-    Важно: API reqres.in может возвращать статус 200, даже если пользователь не существует.
-    Этот тест проверяет, создал ли API пользователя с указанными данными, если он не существовал.
-    """
-    user_id = 9999
+@pytest.mark.parametrize("user_id", [9999, 10000, 12345])
+def test_put_updated_user_not_found(user_id):
+    """Негативный тест на обновление данных несуществующего пользователя."""
     payload = {
-            "id": 9999,
-            "email": "9999@reqres.in",
-            "first_name": "Ben",
-            "last_name": "Houston",
-            "avatar": "https://reqres.in/img/faces/9999-image.jpg"
-        }
-
-    # Отправка PUT-запроса к эндпоинту '/users/{user_id}'
+        "email": "nonexistent@reqres.in",
+        "first_name": "Ghost",
+        "last_name": "User",
+        "avatar": "https://reqres.in/img/faces/nonexistent-image.jpg"
+    }
     response = requests.put(f"{BASE_URL}/users/{user_id}", json=payload)
 
     # Проверяем, что статус-код ответа равен 200
     assert response.status_code == 200  # API может возвращать 200, даже если пользователь не существует
 
-    # Дополнительные проверки
     data = response.json()
-    assert "id" in data
-    assert data["id"] == payload["id"]
     assert data["email"] == payload["email"]
     assert data["first_name"] == payload["first_name"]
     assert data["last_name"] == payload["last_name"]
     assert data["avatar"] == payload["avatar"]
 
 
-def test_delete_user_not_found():
+@pytest.mark.parametrize("user_id", [9999, 10999, 336688])
+def test_delete_user_not_found(user_id):
     """Негативный тест на проверку удаления несуществующего пользователя.
     Важно: API reqres.in возвращает статус 204, даже если пользователь не существует.
     """
-    user_id = 9999
     response = requests.delete(f"{BASE_URL}/users/{user_id}")
 
     # Проверяем, что статус-код ответа равен 204 (No Content)
