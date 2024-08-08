@@ -83,3 +83,38 @@ def test_post_create_user():
     # Дополнительно можно проверить, что возвращаемый объект содержит уникальный идентификатор и дату создания
     assert "id" in data
     assert "createdAt" in data
+
+
+def test_put_update_user():
+    """Тест на обновление данных существующего пользователя"""
+    user_id = 2
+    payload = {
+        "id": 2,
+        "email": "janetta.weaver@reqres.in",
+        "first_name": "Janetta",
+        "last_name": "Weaverton",
+        "avatar": "https://reqres.in/img/faces/2-image.jpg"
+    }
+
+    # Отправка PUT-запрос к эндпоинту '/users/{user_id}'
+    response = requests.put(f"{BASE_URL}/users/{user_id}", json=payload)
+
+    # Проверка, что статус-код ответа равен 200
+    assert response.status_code == 200
+
+    # Получение данных из ответа
+    data = response.json()
+
+    # Проверка наличия полей в ответе
+    assert "id" in data
+    assert "email" in data
+    assert "first_name" in data
+    assert "last_name" in data
+    assert "avatar" in data
+
+    # Проверка, что значения полей в ответе совпадают с отправленными данными
+    assert data["id"] == payload["id"]
+    assert data["email"] == payload["email"]
+    assert data["first_name"] == payload["first_name"]
+    assert data["last_name"] == payload["last_name"]
+    assert data["avatar"] == payload["avatar"]
