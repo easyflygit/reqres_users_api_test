@@ -5,6 +5,7 @@ BASE_URL = "https://reqres.in/api"
 
 def test_get_users():
     """Тест на получение списка всех пользователей"""
+    # Отправка GET-запроса к эндпоинту '/users'
     response = requests.get(f"{BASE_URL}/users")
 
     # Проверка, что статус-код ответа равен 200
@@ -31,6 +32,8 @@ def test_get_users():
 def test_get_user_by_id():
     """Тест на получение пользователя по-конкретному id, например 'id=2'"""
     user_id = 2
+
+    # Отправка GET-запроса к эндпоинту '/users/{user_id}'
     response = requests.get(f"{BASE_URL}/users/{user_id}")
 
     # Проверка, что статус-код ответа равен 200
@@ -60,6 +63,8 @@ def test_post_create_user():
         "last_name": "Wattson",
         "avatar": "https://reqres.in/img/faces/13-image.jpg"
     }
+
+    # Отправка POST-запроса к эндпоинту '/users'
     response = requests.post(f"{BASE_URL}/users", json=payload)
 
     # Проверка, что статус-код ответа равен 201
@@ -96,7 +101,7 @@ def test_put_update_user():
         "avatar": "https://reqres.in/img/faces/2-image.jpg"
     }
 
-    # Отправка PUT-запрос к эндпоинту '/users/{user_id}'
+    # Отправка PUT-запроса к эндпоинту '/users/{user_id}'
     response = requests.put(f"{BASE_URL}/users/{user_id}", json=payload)
 
     # Проверка, что статус-код ответа равен 200
@@ -123,7 +128,20 @@ def test_put_update_user():
 def test_delete_user():
     """Тест на проверку удаления пользователя"""
     user_id = 2
+
+    # Отправка DELETE-запроса к эндпоинту '/users/{user_id}'
     response = requests.delete(f"{BASE_URL}/users/{user_id}")
 
     # Проверка, что статус-код ответа равен 204
     assert response.status_code == 204
+
+
+def test_get_user_not_found():
+    """Тест на запрос не существующего пользователя"""
+    user_id = 9999
+
+    # Отправка GET-запроса к эндпоинту '/users/{user_id}'
+    response = requests.get(f"{BASE_URL}/users/{user_id}")
+
+    # Проверка, что статус-код ответа равен 204
+    assert response.status_code == 404
