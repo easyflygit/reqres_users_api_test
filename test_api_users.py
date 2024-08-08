@@ -118,3 +118,12 @@ def test_put_update_user():
     assert data["first_name"] == payload["first_name"]
     assert data["last_name"] == payload["last_name"]
     assert data["avatar"] == payload["avatar"]
+
+
+def test_delete_user():
+    """Тест на проверку удаления пользователя"""
+    user_id = 2
+    response = requests.delete(f"{BASE_URL}/users/{user_id}")
+
+    # Проверка, что статус-код ответа равен 204
+    assert response.status_code == 204
