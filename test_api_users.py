@@ -1,4 +1,5 @@
 import requests
+import pytest
 
 BASE_URL = "https://reqres.in/api"
 
@@ -170,3 +171,33 @@ def test_post_create_user_invalid_data():
     data = response.json()
     assert "id" in data
     assert "createdAt" in data
+
+
+def test_put_updated_user_not_found():
+    """Тест на проверку обновления данных несуществующего пользователя.
+    Важно: API reqres.in может возвращать статус 200, даже если пользователь не существует.
+    Этот тест проверяет, создал ли API пользователя с указанными данными, если он не существовал.
+    """
+    user_id = 9999
+    payload = {
+            "id": 9999,
+            "email": "9999@reqres.in",
+            "first_name": "Ben",
+            "last_name": "Houston",
+            "avatar": "https://reqres.in/img/faces/9999-image.jpg"
+        }
+
+    # Отправка PUT-запроса к эндпоинту '/users/{user_id}'
+    response = requests.put(f"{BASE_URL}/users/{user_id}", json=payload)
+
+    # Проверяем, что статус-код ответа равен 200
+    assert response.status_code == 200
+
+    # Дополнительные проверки
+    data = response.json()
+    assert "id" in data
+    assert data["id"] == payload["id"]
+    assert data["email"] == payload["email"]
+    assert data["first_name"] == payload["first_name"]
+    assert data["last_name"] == payload["last_name"]
+    assert data["avatar"] == payload["avatar"]
