@@ -137,11 +137,36 @@ def test_delete_user():
 
 
 def test_get_user_not_found():
-    """Тест на запрос не существующего пользователя"""
+    """Тест на запрос несуществующего пользователя"""
     user_id = 9999
 
     # Отправка GET-запроса к эндпоинту '/users/{user_id}'
     response = requests.get(f"{BASE_URL}/users/{user_id}")
 
-    # Проверка, что статус-код ответа равен 204
+    # Проверка, что статус-код ответа равен 404
     assert response.status_code == 404
+
+
+def test_post_create_user_invalid_data():
+    """Тест на создание пользователя с некорректными данными.
+    Внимание: API reqres.in не выполняет строгую валидацию данных и возвращает статус 201
+    даже при некорректных данных. Этот тест предназначен для проверки фактического поведения
+    API, а не для проверки валидации данных.
+    """
+    payload = {
+            "email": 555,  # согласно документации поле ожидает string
+            "first_name": 111,  # согласно документации поле ожидает string
+            "last_name": 368,  # согласно документации поле ожидает string
+            "avatar": [1, '2', 3]  # согласно документации поле ожидает string
+        }
+
+    # Отправка POST-запроса к эндпоинту '/users'
+    response = requests.post(f"{BASE_URL}/users", json=payload)
+
+    # Проверяем, что статус-код ответа равен 201
+    assert response.status_code == 201
+
+    # Дополнительные проверки
+    data = response.json()
+    assert "id" in data
+    assert "createdAt" in data
